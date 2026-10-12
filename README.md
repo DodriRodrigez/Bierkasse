@@ -34,6 +34,18 @@ Auslagenerstattungen und automatischer Ausstands-Verrechnung per E-Mail.
 
 ---
 
+## Dokumentation
+
+| Dokument | Inhalt |
+|---|---|
+| [`docs/ARCHITEKTUR.md`](docs/ARCHITEKTUR.md) | Schichten, Modul-Abhängigkeiten, Auth- und Buchungsfluss (ASCII-Diagramme) |
+| [`docs/ARCHITEKTUR-MERMAID.md`](docs/ARCHITEKTUR-MERMAID.md) | Dieselbe Architektur als Mermaid-Diagramme (auf GitHub gerendert) |
+| [`docs/DATENMODELL.md`](docs/DATENMODELL.md) | Alle Tabellen, Beziehungen und Konventionen (ASCII + Spaltenreferenz) |
+| [`docs/DATENMODELL-MERMAID.md`](docs/DATENMODELL-MERMAID.md) | Entity-Relationship-Diagramm der Datenbank (Mermaid) |
+| [`mailserver/DNS-VORLAGE.md`](mailserver/DNS-VORLAGE.md) | Eigener Mailserver: DNS-Records (SPF/DKIM/DMARC), PTR, Setup |
+
+---
+
 ## Projektstruktur
 
 ```
@@ -55,6 +67,7 @@ Auslagenerstattungen und automatischer Ausstands-Verrechnung per E-Mail.
 ├── frontend/                # React-SPA
 │   └── src/features/        # Seiten (Dashboard, Buchungen, …)
 ├── mailserver/              # optionaler eigener Mailserver (docker-mailserver)
+├── docs/                    # Architektur- & Datenmodell-Dokumentation
 ├── data/                    # Laufzeit-Datenbank (SQLite, gitignoriert)
 ├── docker-compose.yml       # App-Stack (Backend, Frontend, Mailpit)
 ├── docker-compose.mail.yml  # Zusatz: eigener Mailserver
