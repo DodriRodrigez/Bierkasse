@@ -1,0 +1,66 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --bg: 250 249 246;          /* alabaster */
+    --surface: 255 255 255;
+    --ink: 28 27 25;            /* warm near-black */
+    --muted: 107 104 98;
+    --line: 231 227 220;
+    --accent: 31 74 66;         /* deep spa green */
+    --accent-weak: 233 238 236;
+    --accent-ink: 255 255 255;
+    --pos: 47 107 79;
+    --neg: 155 58 58;
+    --warn: 138 106 30;
+  }
+
+  .dark {
+    --bg: 18 20 19;
+    --surface: 26 29 28;
+    --ink: 240 239 236;
+    --muted: 156 156 150;
+    --line: 44 48 46;
+    --accent: 92 156 140;
+    --accent-weak: 30 43 40;
+    --accent-ink: 12 20 18;
+    --pos: 110 190 150;
+    --neg: 224 130 130;
+    --warn: 214 180 110;
+  }
+
+  html {
+    -webkit-text-size-adjust: 100%;
+  }
+
+  body {
+    @apply bg-bg text-ink font-sans antialiased;
+    font-feature-settings: "cv11", "ss01";
+  }
+
+  * {
+    @apply border-line;
+  }
+
+  :focus-visible {
+    @apply outline-none ring-2 ring-accent/50 ring-offset-1 ring-offset-bg;
+  }
+
+  ::selection {
+    @apply bg-accent/20;
+  }
+
+  /* numbers align in tables and cards */
+  .tnum {
+    font-variant-numeric: tabular-nums;
+    font-feature-settings: "tnum";
+  }
+}
+
+@layer components {
+  .surface {
+    @apply bg-surface border border-line rounded-lg;
+  }
+}

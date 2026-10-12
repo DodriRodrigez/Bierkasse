@@ -1,0 +1,13 @@
+[project]
+name = "bierkasse7-backend"
+version = "1.0.0"
+description = "Bierkasse7 – FastAPI backend for Verbindungsbuchhaltung with Kassenbereiche"
+requires-python = ">=3.11"
+
+[tool.pytest.ini_options]
+pythonpath = ["."]
+testpaths = ["tests"]
+addopts = "-q"
+filterwarnings = [
+    "ignore::DeprecationWarning",
+]

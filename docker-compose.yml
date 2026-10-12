@@ -1,0 +1,55 @@
+# Bierkasse7 – Docker-Setup
+#
+#   docker compose up -d --build
+#
+# Dienste:
+#   frontend  -> http://localhost:8080        (SPA, proxied /api ans Backend)
+#   backend   -> http://localhost:8000        (FastAPI)
+#   mailpit   -> http://localhost:8025        (Web-UI für alle gesendeten Mails)
+#
+# Der Verrechnungs-E-Mail-Automat versendet über SMTP (Zugangsdaten aus .env).
+# Ohne weitere Konfiguration wird der lokale Mailpit-Test-SMTP genutzt
+# (Web-UI unter http://localhost:8025).
+
+services:
+  mailpit:
+    image: axllent/mailpit:latest
+    container_name: bierkasse7-mailpit
+    ports:
+      - "1025:1025"   # SMTP
+      - "8025:8025"   # Web-UI
+    restart: unless-stopped
+
+  backend:
+    build: ./backend
+    container_name: bierkasse7-backend
+    environment:
+      # Datenbank (SQLite-Datei liegt im Volume ./data)
+      BIERKASSE7_DATABASE_URL: "sqlite:////data/bierkasse7.db"
+      BIERKASSE7_SECRET_KEY: "${BIERKASSE7_SECRET_KEY:-change-me-in-production}"
+      BIERKASSE7_DEBUG: "${BIERKASSE7_DEBUG:-false}"
+      # Verrechnungs-E-Mail: Standard ist der lokale Mailpit-Testdienst.
+      BIERKASSE7_SMTP_HOST: "${SMTP_HOST:-mailpit}"
+      BIERKASSE7_SMTP_PORT: "${SMTP_PORT:-1025}"
+      BIERKASSE7_SMTP_STARTTLS: "${SMTP_STARTTLS:-false}"
+      BIERKASSE7_SMTP_SSL: "false"
+      BIERKASSE7_SMTP_USER: "${SMTP_USER:-}"
+      BIERKASSE7_SMTP_PASSWORD: "${SMTP_PASSWORD:-}"
+      BIERKASSE7_MAIL_FROM: "${MAIL_FROM:-verrechnung@example.com}"
+      BIERKASSE7_MAIL_FROM_NAME: "Bierkasse Verrechnung"
+    volumes:
+      - ./data:/data
+    ports:
+      - "8000:8000"
+    depends_on:
+      - mailpit
+    restart: unless-stopped
+
+  frontend:
+    build: ./frontend
+    container_name: bierkasse7-frontend
+    ports:
+      - "8080:80"
+    depends_on:
+      - backend
+    restart: unless-stopped

@@ -1,0 +1,54 @@
+# Bierkasse7 – eigener Mailserver (docker-mailserver)
+#
+#   Voraussetzung: VPS mit öffentlicher IP + eigene Domain.
+#   Aufruf (zusammen mit dem App-Stack):
+#
+#     cp .env.example .env          # MAIL_DOMAIN / MAIL_HOSTNAME setzen
+#     docker compose -f docker-compose.yml -f docker-compose.mail.yml up -d --build
+#     MAIL_FROM_PASSWORD=<passwort> ./mailserver/setup.sh
+#
+# Der Backend-Container versendet dann über den eigenen Mailserver (dienstname
+# "mailserver", Port 25) statt über Mailpit.
+
+services:
+  mailserver:
+    # offizielles docker-mailserver-Image (Postfix, Dovecot, Rspamd/OpenDKIM)
+    image: ghcr.io/docker-mailserver/docker-mailserver:latest
+    container_name: bierkasse7-mailserver
+    hostname: ${MAIL_HOSTNAME:-mail.example.com}
+    domainname: ${MAIL_DOMAIN:-example.com}
+    ports:
+      - "25:25"      # eingehende Mail (MX)
+      - "587:587"    # Submission (mit STARTTLS)
+      - "465:465"    # Submission (SSL)
+    env_file:
+      - ./mailserver/mailserver.env
+    environment:
+      # Container im Bierkasse7-Netz dürfen ohne Auth relayen (die App)
+      PERMIT_DOCKER: "connected-networks"
+      POSTMASTER_ADDRESS: "postmaster@${MAIL_DOMAIN:-example.com}"
+    volumes:
+      - ./mailserver/data/config:/tmp/docker-mailserver
+      - ./mailserver/data/mail:/var/mail
+      - ./mailserver/data/state:/var/mail-state
+      - ./mailserver/data/logs:/var/log/mail
+      - ./mailserver/data/certs:/etc/letsencrypt
+    cap_add:
+      - NET_ADMIN
+    healthcheck:
+      test: ["CMD-SHELL", "ss -lntu | grep -q ':25 '"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+    restart: unless-stopped
+
+  backend:
+    # Versand über den eigenen Mailserver statt Mailpit
+    environment:
+      BIERKASSE7_SMTP_HOST: "mailserver"
+      BIERKASSE7_SMTP_PORT: "25"
+      BIERKASSE7_SMTP_STARTTLS: "false"
+      BIERKASSE7_SMTP_SSL: "false"
+      BIERKASSE7_SMTP_USER: ""
+      BIERKASSE7_SMTP_PASSWORD: ""
+      BIERKASSE7_MAIL_FROM: "verrechnung@${MAIL_DOMAIN:-example.com}"
